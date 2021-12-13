@@ -261,6 +261,13 @@ def crop_image(img, new_size):
     return cropped_img
 
 
+def crop_image_2D(img, new_size):
+    diff2 = (img.size(0) - new_size[0]) // 2
+    diff3 = (img.size(1) - new_size[1]) // 2
+    cropped_img = img[diff2: diff2 + new_size[0], diff3: diff3 + new_size[1]]
+    return cropped_img
+
+
 def trans_crop(O, a_m, new_size):
     O_a = imtransform(O, a_m)
     O_a_c = crop_image(O_a, new_size)

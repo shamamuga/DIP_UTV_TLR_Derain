@@ -21,7 +21,7 @@ import os
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--num_outer_iter', type=int, default=1, help='number of epochs of training')
+parser.add_argument('--num_outer_iter', type=int, default=100, help='number of epochs of training')
 parser.add_argument('--num_inner_iter_cnn', type=int, default=2, help='number of inner ADAM iterations for cnn')
 parser.add_argument('--num_inner_iter_affine', type=int, default=2, help='number of inner ADAM iterations for affine')
 parser.add_argument('--data_path', type=str, default='datasets/', help='path to rainny image')
@@ -57,6 +57,7 @@ for f in file_source:
     imgs = imgs[None, ...]
     #O = np_to_torch(imgs).type(dtype)
     O = np_to_torch(imgs)
+    O = crop_image(O, [0, 0, 100, 100])
     shape = O.size()
     m = shape[-2]
     n = shape[-1]
