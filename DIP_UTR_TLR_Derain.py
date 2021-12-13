@@ -21,9 +21,9 @@ import os
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--num_outer_iter', type=int, default=70, help='number of epochs of training')
-parser.add_argument('--num_inner_iter_cnn', type=int, default=20, help='number of inner ADAM iterations for cnn')
-parser.add_argument('--num_inner_iter_affine', type=int, default=10, help='number of inner ADAM iterations for affine')
+parser.add_argument('--num_outer_iter', type=int, default=100, help='number of epochs of training')
+parser.add_argument('--num_inner_iter_cnn', type=int, default=2, help='number of inner ADAM iterations for cnn')
+parser.add_argument('--num_inner_iter_affine', type=int, default=2, help='number of inner ADAM iterations for affine')
 parser.add_argument('--data_path', type=str, default='datasets/', help='path to rainny image')
 parser.add_argument('--img_size', type=int, default=[256, 256], help='size of each image dimension')
 parser.add_argument('--save_path', type=str, default='results/', help='path to save results')
@@ -70,15 +70,15 @@ for f in file_source:
     O_pad_np = torch_to_np(O_pad).squeeze()
     save_path = os.path.join(opt.save_path, '%s_x.png' % imgname)
     imsave(save_path, O_pad_np)
-    print('O_pad_np:', O_pad_np)
-    print(save_path)
+    # print('O_pad_np:', O_pad_np)
+    # print(save_path)
     rain_free_img, rain_streak, total_loss_list = ADMM_RTL_UTV_DIP1(O_pad, opt)
     out_x_np = torch_to_np(rain_free_img)
     rain_np = torch_to_np(rain_streak)
     save_path = os.path.join(opt.save_path, '%s_x.png' % imgname)
     out_x_np = out_x_np.squeeze()*255
     rain_np = rain_np.squeeze()*255
-    print('out_x_np', out_x_np)
+    # print('out_x_np', out_x_np)
     imshow(out_x_np)
     plt.show()
     imshow(rain_np)

@@ -79,11 +79,11 @@ def get_noise(input_depth, method, spatial_size, noise_type='u', var=1./10):
         spatial_size = (spatial_size, spatial_size)
     if method == 'noise':
         shape = [1, input_depth, spatial_size[-2], spatial_size[-1]]
-        print('get_noise:shape', shape)
+        # print('get_noise:shape', shape)
         net_input = torch.zeros(shape)
         fill_noise(net_input, noise_type)
         net_input *= var
-        print('get_noise:net_input.size()', net_input.size())
+        # print('get_noise:net_input.size()', net_input.size())
     elif method == 'meshgrid':
         assert input_depth == 2
         X, Y = np.meshgrid(np.arange(0, spatial_size[1])/float(spatial_size[1]-1), np.arange(0, spatial_size[0])/float(spatial_size[0]-1))
@@ -114,13 +114,13 @@ def imtransform(inputs, tfm_matrix):
 def Dux(U):
     # % Forward finite difference operator(x-axis)
     # discrete gradient operators
-    print('Dxu: size of U:', U.size())
+    # print('Dxu: size of U:', U.size())
     # end_col_diff = U[:,:,:,0] - U[:,:,:,-1]
     end_col_diff1 = U[:, 0] - U[:, -1]
     # end_col_diff = end_col_diff.unsqueeze(axis=3)
     end_col_diff = end_col_diff1.unsqueeze(axis=1)
-    print('Dux end_col_diff.size()', end_col_diff.size())
-    print('Dux torch.diff(U,1,1).size()', torch.diff(U,1,1).size())
+    # print('Dux end_col_diff.size()', end_col_diff.size())
+    # print('Dux torch.diff(U,1,1).size()', torch.diff(U,1,1).size())
     # dux = torch.cat((torch.diff(U, 1, 3), end_col_diff), axis=3)
     dux = torch.cat((torch.diff(U, 1, 1), end_col_diff), axis=1)
     return dux
@@ -140,7 +140,7 @@ def SVD_shrinkage(I, tau):
     U, S, V = torch.svd(I)
     mask = torch.where(S > tau, 1, 0)
     S = mask * (S - tau)
-    print('SVD_shrinkage: U.size(), S.size()', U.size(), S.size())
+    # print('SVD_shrinkage: U.size(), S.size()', U.size(), S.size())
     S = torch.diag(S)
     temp = torch.matmul(U, S)
     I = torch.matmul(temp, torch.transpose(V, 0, 1))
@@ -161,8 +161,8 @@ def zero_pad(image, shape, position='corner'):
     # print(imshape)
     shape = np.asarray(shape, dtype=int)[-2:]
     imshape = np.asarray(image.shape, dtype=int)[-2:]
-    print("zero_pad imshape", imshape)
-    print("zero_pad shape", shape)
+    # print("zero_pad imshape", imshape)
+    # print("zero_pad shape", shape)
 
     if np.all(imshape == shape):
         return image
@@ -207,7 +207,7 @@ def psf2otf(psf, shape):
     psf_pad = zero_pad(psf, shape, position='corner').type(psf.dtype)
     # Circularly shift OTF so that the 'center' of the PSF is
     # [0,0] element of the array
-    print('psf2otf torch.roll axis_size', inshape)
+    # print('psf2otf torch.roll axis_size', inshape)
     for axis, axis_size in enumerate(inshape):
         psf_pad = torch.roll(psf_pad, -int(axis_size / 2), dims=axis)
     # Compute the OTF
@@ -222,7 +222,7 @@ def psf2otf(psf, shape):
     # otf[torch.abs(otf.imag) < n_ops * 2.22e-16] = otf[torch.abs(otf.imag) < n_ops * 2.22e-16].real
     if torch.all(torch.abs(otf.imag) < n_ops * 2.22e-16):
         otf = otf.real
-    print(otf)
+    # print(otf)
     return otf
 
 
@@ -252,11 +252,11 @@ def crop_image(img, new_size):
     print(img.size())
     diff2 = (img.size(2) - new_size[2]) // 2
     diff3 = (img.size(3) - new_size[3]) // 2
-    print('crop_image:diff2, diff3', diff2, diff3)
-    print('crop_image: img size:', img.size())
-    print('crop_image: new_size:', new_size)
+    # print('crop_image:diff2, diff3', diff2, diff3)
+    # print('crop_image: img size:', img.size())
+    # print('crop_image: new_size:', new_size)
     cropped_img = img[:, :, diff2 : diff2 + new_size[2], diff3 : diff3 + new_size[3]]
-    print('crop_image: cropped_img size:', cropped_img.size())
+    # print('crop_image: cropped_img size:', cropped_img.size())
     # print(cropped_img.squeeze())
     return cropped_img
 

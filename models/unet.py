@@ -35,7 +35,7 @@ class UNet(nn.Module):
     pad in ['zero', 'replication', 'none']
     '''
     def __init__(self, num_input_channels=3, num_output_channels=3, feature_scale=4,
-                 more_layers=0, concat_x=False, upsample_model='deconv',
+                 more_layers=0, concat_x=False, upsample_mode='deconv',
                  pad='zero', norm_layer=nn.InstanceNorm2d, need_sigmoid=True, need_bias=True):
         super(UNet, self).__init__()
         self.feature_scale = feature_scale
@@ -55,15 +55,15 @@ class UNet(nn.Module):
         if self.more_layers > 0:
             self.more_downs = [unetDown(filters[4], filters[4] if not concat_x else filters[4] - num_input_channels, norm_layer, need_bias, pad)
                                for i in range(self.more_layers)]
-            self.more_ups = [unetUp(filters[4], upsample_model, need_bias, pad, same_num_filt=True) for i in range(self.more_layers)]
+            self.more_ups = [unetUp(filters[4], upsample_mode, need_bias, pad, same_num_filt=True) for i in range(self.more_layers)]
 
             self.more_downs = ListModule(*self.more_downs)
             self.more_ups = ListModule(*self.more_ups)
 
-        self.up4 = unetUp(filters[3], upsample_model, need_bias, pad)
-        self.up3 = unetUp(filters[2], upsample_model, need_bias, pad)
-        self.up2 = unetUp(filters[1], upsample_model, need_bias, pad)
-        self.up1 = unetUp(filters[0], upsample_model, need_bias, pad)
+        self.up4 = unetUp(filters[3], upsample_mode, need_bias, pad)
+        self.up3 = unetUp(filters[2], upsample_mode, need_bias, pad)
+        self.up2 = unetUp(filters[1], upsample_mode, need_bias, pad)
+        self.up1 = unetUp(filters[0], upsample_mode, need_bias, pad)
 
         self.final = conv(filters[0], num_output_channels, 1, bias=need_bias, pad=pad)
 

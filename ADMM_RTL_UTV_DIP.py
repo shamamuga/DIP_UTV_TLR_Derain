@@ -10,8 +10,8 @@ from utils.commom_utils import *
 from adam_network_minimize_back import *
 from utils.network_optimization import *
 from models.fcn import *
-from models.unet import UNet
-# from models.unet import UNet
+#from models.unet import UNet
+from models.unet_origin import UNet
 if torch.cuda.is_available():
     torch.backends.cudnn.enabled = True
     torch.backends.cudnn.benchmark =True
@@ -46,7 +46,7 @@ def ADMM_RTL_UTV_DIP1(O, param):
     INPUT = 'noise'
     input_depth = 2
     net_input = get_noise(input_depth, INPUT, (param.new_size[-2], param.new_size[-1])).type(dtype)
-    net = UNet(num_input_channels=input_depth, num_output_channels=1, upsample_model='deconv', need_sigmoid=False)
+    net = UNet(num_input_channels=input_depth, num_output_channels=1, upsample_mode='deconv', need_sigmoid=False)
     net = net.type(dtype)
 
     '''
@@ -55,7 +55,7 @@ def ADMM_RTL_UTV_DIP1(O, param):
     n_k = 200
     net_input_affine = get_noise(n_k, INPUT, (1, 1)).type(dtype)
     net_input_affine.squeeze_()
-    print('net_input_affine', net_input_affine)
+    # print('net_input_affine', net_input_affine)
     # net_affine = fcn(n_k, 4)
     net_affine = fcn(n_k, 1)
     net_affine = net_affine.type(dtype)
@@ -69,13 +69,13 @@ def ADMM_RTL_UTV_DIP1(O, param):
         # print('ADMM_RTL_UTV_DIP: net_input_saved.size()', net_input_saved.size())
         out_x = net(net_input_saved)
         out_x = out_x.squeeze()
-        print('ADMM_RTL_UTV.py out_x:', out_x)
+        # print('ADMM_RTL_UTV.py out_x:', out_x)
         out_a = net_affine(net_affine_input_saved)
         #print("out_a:", out_a)
         # out_a_m = out_a.view(2, 2)
         out_a_m = torch.tensor([[torch.cos(out_a), -torch.sin(out_a)], [torch.sin(out_a), torch.cos(out_a)]])
         out_a_m_p = F.pad(input=out_a_m, pad=(0,1,0,0), mode='constant', value=0).type(dtype)
-        print('ADMM_RTL_UTV.py out_a_m:', out_a_m)
+        # print('ADMM_RTL_UTV.py out_a_m:', out_a_m)
         # O_a = imtransform(O, out_a_m)
         m, n = param.img_size[-2], param.img_size[-1]
         O = O.type(dtype)
@@ -98,8 +98,8 @@ def ADMM_RTL_UTV_DIP1(O, param):
         Denom = param.mu * Denom2 + (1 + param.mu)
         Fr = (torch.fft.fft2(O_a - out_x + param.mu*V1 - Lam1) + param.mu*conjoDy*torch.fft.fft2(V3 - Lam3/param.mu))/Denom
         R = torch.real(torch.fft.ifft2(Fr))
-        print('ADMM_RTL_UTV_DIP1: R.size()', R.size())
-        print('ADMM_RTL_UTV_DIP1: R', R)
+        # print('ADMM_RTL_UTV_DIP1: R.size()', R.size())
+        # print('ADMM_RTL_UTV_DIP1: R', R)
 
         # ksai and theta subproblem (i.e network parameter optimization ADAM)
         # (out_x, out_a_m) = adam_network_minmize(net, net_affine, net_input_saved, net_affine_input_saved, O, R, V2, Lam2, param.mu, new_size, param.num_inner_iter)
